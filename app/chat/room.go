@@ -10,17 +10,15 @@ import (
 type room struct {
 	// forwardは他のクライアントに転送するためのメッセージを保持するチャネルです。
 	forward chan []byte
-
 	// joinはチャットルームに参加しようとしているクライアントのためのチャネルです。
 	join chan *client
-
-	// leaveはチャットルームから退室しようとしているクライアントのチャネルです。
+	// leaveはチャットルームから退室しようとしているクライアントのためのチャネルです
 	leave chan *client
-
-	// clients には在籍している術とのクライアントが保持されます。
+	// clientsには在室しているすべてのクライアントが保持されます。
 	clients map[*client]bool
 }
 
+// newRoomはすぐに利用できるチャットルームを生成して返します。
 func newRoom() *room {
 	return &room{
 		forward: make(chan []byte),
@@ -31,13 +29,13 @@ func newRoom() *room {
 }
 
 func (r *room) run() {
-	// goroutineであれば他に影響がないため無限ループでも問題ない
 	for {
 		select {
 		case client := <-r.join:
 			// 参加
 			r.clients[client] = true
 		case client := <-r.leave:
+			// 退室
 			delete(r.clients, client)
 			close(client.send)
 		case msg := <-r.forward:
@@ -61,10 +59,7 @@ const (
 	messageBufferSize = 256
 )
 
-var upgrader = &websocket.Upgrader{
-	ReadBufferSize:  socketBufferSize,
-	WriteBufferSize: socketBufferSize,
-}
+var upgrader = &websocket.Upgrader{ReadBufferSize: socketBufferSize, WriteBufferSize: socketBufferSize}
 
 func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	socket, err := upgrader.Upgrade(w, req, nil)
@@ -78,9 +73,7 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		room:   r,
 	}
 	r.join <- client
-	defer func() {
-		r.leave <- client
-	}()
+	defer func() { r.leave <- client }()
 	go client.write()
 	client.read()
 }

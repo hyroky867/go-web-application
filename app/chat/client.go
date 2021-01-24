@@ -21,8 +21,8 @@ func (c *client) read() {
 		} else {
 			break
 		}
-		c.socket.Close()
 	}
+	c.socket.Close()
 }
 func (c *client) write() {
 	for msg := range c.send {
