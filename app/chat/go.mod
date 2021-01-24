@@ -2,4 +2,6 @@ module main
 
 go 1.15
 
-require golang.org/x/tour v0.0.0-20201207214521-004403599411
+require (
+	github.com/gorilla/websocket v1.4.2
+)
