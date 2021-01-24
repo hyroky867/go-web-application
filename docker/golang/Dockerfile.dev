@@ -1,0 +1,21 @@
+FROM golang:1.14.0-alpine3.11
+
+SHELL ["/bin/ash", "-c"]
+WORKDIR /go/src/app
+COPY ./app ./
+EXPOSE 8080
+ENV GO111MODULE=on
+
+RUN apk add --no-cache alpine-sdk
+
+# Golang ホットリロード(freshのインストール)
+RUN go get github.com/pilu/fresh
+
+# Golang 環境構築(任意)
+RUN go get github.com/go-delve/delve/cmd/dlv \
+    github.com/rogpeppe/godef \ 
+    golang.org/x/tools/cmd/goimports \
+    golang.org/x/tools/cmd/gorename \
+    sourcegraph.com/sqs/goreturns \
+    github.com/ramya-rao-a/go-outline \
+    golang.org/x/tools/gopls@latest

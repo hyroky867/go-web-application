@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+  app:
+    container_name: go-app
+    build:
+      context: .
+      # Remote Containerが立ち上がるまで待機
+      dockerfile: docker/golang/Dockerfile.dev
+    ports:
+      - 8080:8080
+    volumes:
+      - ./app:/go/src/app:cached
+    command: /bin/ash -c "while sleep 1000; do :; done"
