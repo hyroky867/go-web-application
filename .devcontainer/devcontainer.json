@@ -12,6 +12,7 @@
   "extensions": [
     "ms-vscode.go",
     "golang.go",
+    "luxcium.pop-n-lock-theme-vscode",
   ],
   "shutdownAction": "stopCompose"
 }
