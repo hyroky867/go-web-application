@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"app/trace"
+
 	"github.com/gorilla/websocket"
 )
 
@@ -16,6 +18,8 @@ type room struct {
 	leave chan *client
 	// clientsには在室しているすべてのクライアントが保持されます。
 	clients map[*client]bool
+	// traceはチャットルーム上で行われた操作のログを受け取ります。
+	tracer trace.Tracer
 }
 
 // newRoomはすぐに利用できるチャットルームを生成して返します。
@@ -34,20 +38,24 @@ func (r *room) run() {
 		case client := <-r.join:
 			// 参加
 			r.clients[client] = true
+			r.tracer.Trace("新しいクライアントが参加しました")
 		case client := <-r.leave:
 			// 退室
 			delete(r.clients, client)
 			close(client.send)
+			r.tracer.Trace("新しいクライアントが退出しました")
 		case msg := <-r.forward:
 			// すべてのクライアントにメッセージを転送
 			for client := range r.clients {
 				select {
 				case client.send <- msg:
 					// メッセージを送信
+					r.tracer.Trace(" -- クライアントに送信されました")
 				default:
 					// 送信に失敗
 					delete(r.clients, client)
 					close(client.send)
+					r.tracer.Trace(" -- 送信に失敗しました。クライアントをクリーンアップします")
 				}
 			}
 		}
