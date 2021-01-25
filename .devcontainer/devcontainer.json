@@ -6,7 +6,7 @@
   "service": "app",
   "workspaceFolder": "/go/src/app",
   "settings": { 
-    "terminal.integrated.shell.linux": "/bin/bash",
+    "terminal.integrated.shell.linux": "/bin/ash",
     "go.gopath": "/go"
   },
   "extensions": [

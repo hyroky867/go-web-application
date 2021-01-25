@@ -19,3 +19,5 @@ RUN go get github.com/go-delve/delve/cmd/dlv \
     sourcegraph.com/sqs/goreturns \
     github.com/ramya-rao-a/go-outline \
     golang.org/x/tools/gopls@latest
+
+ENV GO111MODULE=auto
