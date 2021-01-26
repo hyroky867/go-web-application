@@ -7,6 +7,9 @@ import (
 	"path/filepath"
 	"sync"
 	"text/template"
+
+	"github.com/stretchr/gomniauth"
+	"github.com/stretchr/gomniauth/providers/google"
 )
 
 type templateHandler struct {
@@ -26,10 +29,17 @@ func main() {
 	var addr = flag.String("addr", ":8080", "localhost")
 	flag.Parse() // フラグを解釈する
 
+	gomniauth.SetSecurityKey("client_secret")
+	gomniauth.WithProviders(google.New(
+		"client_id",
+		"client_secret",
+		"http://localhost:8080/auth/callback/google",
+	))
+
 	r := newRoom()
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
-	http.HandleFunc("/auth", loginHandler)
+	http.HandleFunc("/auth/", loginHandler)
 	http.Handle("/room", r)
 
 	// チャットルームを開始します
