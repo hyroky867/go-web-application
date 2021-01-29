@@ -2,10 +2,13 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"sync"
+	"testing"
 	"text/template"
 
 	"github.com/stretchr/gomniauth"
@@ -44,7 +47,7 @@ func main() {
 		"http://localhost:8080/auth/callback/google",
 	))
 
-	r := newRoom(UseAuthAvatar)
+	r := newRoom(UseFileSystemAvatar)
 	http.Handle("/chat", MustAuth(&templateHandler{filename: "chat.html"}))
 	http.Handle("/login", &templateHandler{filename: "login.html"})
 	http.HandleFunc("/auth/", loginHandler)
@@ -74,5 +77,25 @@ func main() {
 	log.Println("Webサーバを開始します。ポート: ", *addr)
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal("ListenAndServe", err)
+	}
+}
+
+func TestFileSystemAvatar(t *testing.T) {
+	// テスト用のアバターファイルを生成
+	filename := filepath.Join("avatars", "abc.jpg")
+	ioutil.WriteFile(filename, []byte{}, 0777)
+	defer func() { os.Remove(filename) }()
+
+	var fileSystemAvatar FileSystemAvatar
+	client := new(client)
+	client.userData = map[string]interface{}{
+		"userid": "abc",
+	}
+	url, err := fileSystemAvatar.GetAvatarURL(client)
+	if err != nil {
+		t.Error("エラーを返すべきではありません")
+	}
+	if url != "/avatars/abc.jpg" {
+		t.Errorf("%sという誤った値を返しました", url)
 	}
 }
