@@ -21,8 +21,6 @@ type room struct {
 	clients map[*client]bool
 	// traceはチャットルーム上で行われた操作のログを受け取ります。
 	tracer trace.Tracer
-	// avatarの情報を取得します
-	avatar Avatar
 }
 
 // newRoomはすぐに利用できるチャットルームを生成して返します。
@@ -33,7 +31,6 @@ func newRoom(avatar Avatar) *room {
 		leave:   make(chan *client),
 		clients: make(map[*client]bool),
 		tracer:  trace.Off(),
-		avatar:  avatar,
 	}
 }
 
