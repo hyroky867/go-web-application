@@ -71,5 +71,17 @@ func handlepollsPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlepollsDelete(w http.ResponseWriter, r *http.Request) {
-	respondErr(w, r, http.StatusInternalServerError, errors.New("未実装です"))
+	db := GetVars(r, "db").(*mgo.Database)
+	c := db.C("polls")
+	p := NewPath(r.URL.Path)
+	if !p.HasID() {
+		respondErr(w, r, http.StatusMethodNotAllowed, "すべての調査項目を削除することはできません")
+		return
+	}
+	if err := c.RemoveId(bson.ObjectIdHex(p.ID)); err != nil {
+		respondErr(w, r, http.StatusInternalServerError, "すべての調査項目を削除することはできません", err)
+		return
+	}
+
+	respond(w, r, http.StatusOK, nil) // 成功
 }
