@@ -88,7 +88,7 @@ func (q *Query) Run() []interface{} {
 	var l sync.Mutex
 	places := make([]interface{}, len(q.Journey))
 	for i, r := range q.Journey {
-		w.Add(l)
+		w.Add(i)
 		go func(types string, i int) {
 			defer w.Done()
 			response, err := q.find(types)
