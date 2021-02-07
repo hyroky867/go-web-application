@@ -53,7 +53,7 @@ func (p *Place) Public() interface{} {
 type Query struct {
 	Lat          float64
 	Lng          float64
-	Journesy     []string
+	Journey      []string
 	Radius       int
 	CostRangeStr string
 }
@@ -86,8 +86,8 @@ func (q *Query) Run() []interface{} {
 	rand.Seed(time.Now().UnixNano())
 	var w sync.WaitGroup
 	var l sync.Mutex
-	places := make([]interface{}, len(q.Journesy))
-	for i, r := range q.Journesy {
+	places := make([]interface{}, len(q.Journey))
+	for i, r := range q.Journey {
 		w.Add(l)
 		go func(types string, i int) {
 			defer w.Done()
